@@ -9,7 +9,6 @@ async def set_endpoint_cache(endpoint:Endpoint):
             "owner_id" : endpoint.owner_id,
             "name" : endpoint.name,
             "url" : endpoint.url,
-            "enabled" : int(endpoint.enabled)
         },
     )
 

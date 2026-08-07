@@ -12,7 +12,6 @@ async def create_endpoint(
         owner_id=owner_id,
         name=data.name,
         url=str(data.url),
-        enabled=data.enabled,
     )
     db.add(endpoint)
     await db.commit()
@@ -46,7 +45,6 @@ async def update_endpoint(
 ) -> Endpoint:
     endpoint.name = data.name
     endpoint.url = str(data.url)
-    endpoint.enabled = data.enabled
     await db.commit()
     await db.refresh(endpoint)
     return endpoint

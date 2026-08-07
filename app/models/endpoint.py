@@ -15,7 +15,7 @@ class Endpoint(Base):
     owner_id : Mapped[int] = mapped_column(ForeignKey("users.id",ondelete="CASCADE"),index=True,)
     name: Mapped[str] = mapped_column(String(100))
     url : Mapped[str] = mapped_column(String(2048))
-    enabled: Mapped[bool] = mapped_column(default=True)
+
     created_at : Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at : Mapped[datetime] = mapped_column(
         server_default=func.now(),
