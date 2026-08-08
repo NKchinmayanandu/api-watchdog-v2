@@ -7,6 +7,7 @@ from app.db.base import Base
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from app.models.user import User
+from sqlalchemy import Integer,Float
 class Endpoint(Base):
 
     __tablename__ = "endpoints"
@@ -21,6 +22,10 @@ class Endpoint(Base):
         server_default=func.now(),
         onupdate=func.now(),
     )
+    current_status: Mapped[str | None] = mapped_column(String(20))
+    last_checked_at: Mapped[datetime | None] = mapped_column()
+    status_code: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    latency: Mapped[float | None] = mapped_column(Float, nullable=True)
     owner : Mapped["User"] = relationship(
         back_populates="endpoints"
     )

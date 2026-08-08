@@ -1,0 +1,71 @@
+from app.redis import cache,streams
+import httpx
+import time 
+from app.db.session import AsyncSessionLocal
+from app.repositories.endpoint import get_endpoint_by_id
+import logging
+async def process_job(job):
+    message_id, endpoint_id = job
+
+    try:
+        endpoint_cache = await cache.get_endpoint_cache(
+            endpoint_id=endpoint_id
+        )
+
+        if not endpoint_cache:
+            # stale Redis job
+            return
+
+        url = endpoint_cache["url"]
+        previous_status = endpoint_cache.get("current_status")
+
+        async with httpx.AsyncClient() as client:
+            start = time.perf_counter()
+
+            response = await client.get(url=url)
+
+            latency_ms = (time.perf_counter() - start) * 1000
+
+        status_code = response.status_code
+
+        current_status = (
+            "UP" if 200 <= status_code < 400 else "DOWN"
+        )
+
+        status_changed = (
+            previous_status is not None
+            and previous_status != current_status
+        )
+
+        await cache.update_endpoint_cache(
+            endpoint_id=endpoint_id,
+            mapping={
+                "current_status": current_status,
+                "latency_ms": latency_ms,
+                "status_code": status_code,
+            },
+        )
+
+        async with AsyncSessionLocal() as db:
+            endpoint = await get_endpoint_by_id(
+                db=db,
+                endpoint_id=endpoint_id,
+            )
+
+            if endpoint:
+                endpoint.current_status = current_status
+                endpoint.latency = latency_ms
+                endpoint.status_code = status_code
+
+                await db.commit()
+
+        await streams.ack_monitor_job(message_id=message_id)
+
+    except Exception:
+        logging.exception(
+        "Failed to process monitor job",
+        extra={
+            "message_id": message_id,
+            "endpoint_id": endpoint_id,
+        },
+    )

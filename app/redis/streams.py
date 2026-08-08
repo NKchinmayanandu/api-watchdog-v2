@@ -15,15 +15,22 @@ async def read_monitor_jobs():
         streams={
         "monitor_jobs": ">"
         },
-        count=1,
+        count=10,
         block=5000
     )
     if not jobs:
-        return None
-    _, messages = jobs[0]
+        return []
 
-    message_id, fields = messages[0]
-
-    endpoint_id = int(fields["endpoint_id"])
+    monitor_jobs = []
+    for message_id,fields in jobs:
+        endpoint_id = int(fields["endpoint_id"])
+        monitor_jobs.append((message_id,endpoint_id))
 
     return message_id,endpoint_id
+
+async def ack_monitor_job(message_id):
+    await redis_client.xack(
+        "monitor_jobs",
+        "monitor_group",
+        message_id,
+    )

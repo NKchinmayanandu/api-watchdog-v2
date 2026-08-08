@@ -1,12 +1,17 @@
 import asyncio
 from app.redis import streams
-from app.redis import cache
+from app.services import monitor
+
 async def monitor_worker():
     while True:
         jobs = await streams.read_monitor_jobs()
         if not jobs:
             continue
-        hset = await cache.get_endpoint_cache(endpoint_id=int(jobs))
+        tasks = [
+            asyncio.create_task(monitor.process_job(job))
+            for job in jobs
+        ]
+        await asyncio.gather(*tasks)
 
 
 
