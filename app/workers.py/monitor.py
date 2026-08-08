@@ -1,10 +1,11 @@
 import asyncio
+import sys
 from app.redis import streams
 from app.services import monitor
 
 async def monitor_worker():
     while True:
-        jobs = await streams.read_monitor_jobs()
+        jobs = await streams.read_monitor_jobs(consumer_name=consumer_name)
         if not jobs:
             continue
         tasks = [
@@ -16,4 +17,5 @@ async def monitor_worker():
 
 
 if __name__ == "__main__":
+    consumer_name = sys.argv[1]
     asyncio.run(monitor_worker())

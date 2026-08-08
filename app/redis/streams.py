@@ -8,10 +8,10 @@ async def enqueue_monitor_jobs(endpoint_id:int):
         }
     )
 
-async def read_monitor_jobs():
+async def read_monitor_jobs(consumer_name):
     jobs = await redis_client.xreadgroup(
         groupname="monitor_group",
-        consumername="worker_a",
+        consumername=consumer_name,
         streams={
         "monitor_jobs": ">"
         },
@@ -26,7 +26,7 @@ async def read_monitor_jobs():
         endpoint_id = int(fields["endpoint_id"])
         monitor_jobs.append((message_id,endpoint_id))
 
-    return message_id,endpoint_id
+    return monitor_jobs
 
 async def ack_monitor_job(message_id):
     await redis_client.xack(
