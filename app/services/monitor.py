@@ -1,8 +1,11 @@
+from datetime import datetime, timezone
+
 from app.redis import cache,streams
 import httpx
 import time 
 from app.db.session import AsyncSessionLocal
 from app.repositories.endpoint import get_endpoint_by_id
+from app.models.endpoint_history import EndpointStatusHistory,EndpointStatus
 import logging
 async def process_job(job):
     message_id, endpoint_id = job
@@ -32,10 +35,7 @@ async def process_job(job):
             "UP" if 200 <= status_code < 400 else "DOWN"
         )
 
-        status_changed = (
-            previous_status is not None
-            and previous_status != current_status
-        )
+        status_changed = previous_status != current_status
 
         await cache.update_endpoint_cache(
             endpoint_id=endpoint_id,
@@ -45,6 +45,8 @@ async def process_job(job):
                 "status_code": status_code,
             },
         )
+
+        from datetime import datetime, timezone
 
         async with AsyncSessionLocal() as db:
             endpoint = await get_endpoint_by_id(
@@ -57,7 +59,17 @@ async def process_job(job):
                 endpoint.latency = latency_ms
                 endpoint.status_code = status_code
 
+                if status_changed:
+                    history = EndpointStatusHistory(
+                        endpoint_id=endpoint.id,
+                        status=current_status,
+                        occurred_at=datetime.now(timezone.utc),
+                    )
+
+                    db.add(history)
+
                 await db.commit()
+
 
         await streams.ack_monitor_job(message_id=message_id)
 

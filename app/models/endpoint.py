@@ -7,7 +7,9 @@ from app.db.base import Base
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from app.models.user import User
+    from app.models.endpoint_history import EndpointStatusHistory
 from sqlalchemy import Integer,Float
+
 class Endpoint(Base):
 
     __tablename__ = "endpoints"
@@ -35,4 +37,8 @@ class Endpoint(Base):
             "name",
             name="uq_name_endpoint_user",
         ),
+    )
+    status_history: Mapped[list["EndpointStatusHistory"]] = relationship(
+        back_populates="endpoint",
+        cascade="all, delete-orphan",
     )
