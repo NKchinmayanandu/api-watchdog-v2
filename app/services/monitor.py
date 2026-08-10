@@ -6,19 +6,17 @@ import time
 from app.db.session import AsyncSessionLocal
 from app.repositories.endpoint import get_endpoint_by_id
 from app.models.endpoint_history import EndpointStatusHistory,EndpointStatus
+from app.redis import scheduler
 import logging
+
 async def process_job(job):
     message_id, endpoint_id = job
-
     try:
         endpoint_cache = await cache.get_endpoint_cache(
             endpoint_id=endpoint_id
         )
-
         if not endpoint_cache:
-            # stale Redis job
             return
-
         url = endpoint_cache["url"]
         previous_status = endpoint_cache.get("current_status")
 
@@ -53,7 +51,6 @@ async def process_job(job):
                 db=db,
                 endpoint_id=endpoint_id,
             )
-
             if endpoint:
                 endpoint.current_status = current_status
                 endpoint.latency = latency_ms
@@ -65,12 +62,9 @@ async def process_job(job):
                         status=current_status,
                         occurred_at=datetime.now(timezone.utc),
                     )
-
                     db.add(history)
-
                 await db.commit()
-
-
+        await scheduler.schedule_endpoint(endpoint_id=endpoint_id)
         await streams.ack_monitor_job(message_id=message_id)
 
     except Exception:

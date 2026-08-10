@@ -15,7 +15,7 @@ async def scheduler_worker():
         for endpoint in due_endpoints:
             endpoint_id = int(endpoint.split(":")[1])
             await streams.enqueue_monitor_jobs(endpoint_id=endpoint_id)
-            await scheduler.schedule_endpoint(endpoint_id=endpoint_id)
+            await scheduler.delete_scheduled_endpoint(endpoint_id=endpoint_id)
         await asyncio.sleep(1)
 
 if __name__ == "__main__":

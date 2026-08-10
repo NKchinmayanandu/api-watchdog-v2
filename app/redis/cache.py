@@ -20,6 +20,7 @@ async def get_endpoint_cache(endpoint_id:id):
     if not hset:
         return None
     return hset
+
 async def update_endpoint_cache(endpoint_id:int,mapping:dict):
     await redis_client.hset(
         f"endpoint:{endpoint_id}",
