@@ -69,6 +69,8 @@ async def process_job(job):
                 owner_id=endpoint.owner_id,
                 endpoint_id=endpoint.id,
                 current_status=current_status,
+                status_code=status_code,
+                latency_ms=latency_ms
             )
         
 

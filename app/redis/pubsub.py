@@ -6,12 +6,16 @@ from app.redis.redis_client import redis_client
 async def publish_endpoint_event(
     endpoint_id: int,
     current_status: str,
-    owner_id:int
+    owner_id:int,
+    status_code:int,
+    latency_ms:int
 ):
     message = {
         "owner_id": owner_id,
         "endpoint_id": endpoint_id,
         "current_status": current_status,
+        "status_code": status_code,
+        "latency_ms": latency_ms
     }
 
     await redis_client.publish(
