@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from app.redis import cache,streams
+from app.redis import cache,streams,pubsub
 import httpx
 import time 
 from app.db.session import AsyncSessionLocal
@@ -64,6 +64,14 @@ async def process_job(job):
                     )
                     db.add(history)
                 await db.commit()
+        if status_changed:
+            await pubsub.publish_endpoint_event(
+                owner_id=endpoint.owner_id,
+                endpoint_id=endpoint.id,
+                current_status=current_status,
+            )
+        
+
         await scheduler.schedule_endpoint(endpoint_id=endpoint_id)
         await streams.ack_monitor_job(message_id=message_id)
 
