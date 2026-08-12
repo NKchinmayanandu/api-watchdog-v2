@@ -11,7 +11,6 @@ async def publish_endpoint_event(
     latency_ms:int
 ):
     message = {
-        "owner_id": owner_id,
         "endpoint_id": endpoint_id,
         "current_status": current_status,
         "status_code": status_code,
@@ -20,10 +19,7 @@ async def publish_endpoint_event(
 
     await redis_client.publish(
     f"endpoint_status_changed:{owner_id}",
-    json.dumps({
-        "endpoint_id": endpoint_id,
-        "current_status": current_status,
-        }),
+    json.dumps(message),
     )
 
 async def subscribe_endpoint_events(owner_id: int):

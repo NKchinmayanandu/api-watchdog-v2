@@ -50,3 +50,42 @@ async def claim_stale_monitor_jobs(consumer_name:str,min_idle_time):
         endpoint_id = int(fields["endpoint_id"])
         monitor_jobs.append((message_id,endpoint_id))
     return monitor_jobs
+
+
+async def enqueue_notification_job(
+    owner_id: int,
+    endpoint_id: int,
+    current_status: str,
+):
+    return await redis_client.xadd(
+        "notification_jobs",
+        {
+            "event_type": "endpoint_status_changed",
+            "owner_id": owner_id,
+            "endpoint_id": endpoint_id,
+            "current_status": current_status,
+        },
+    )
+
+async def read_notification_jobs(consumer_name: str):
+    jobs = await redis_client.xreadgroup(
+        groupname="notification_group",
+        consumername=consumer_name,
+        streams={
+            "notification_jobs": ">"
+        },
+        count=10,
+        block=5000,
+    )
+    if not jobs:
+        return []
+    _, messages = jobs[0]
+    notification_jobs = []
+    for message_id, fields in messages:
+        endpoint_id = int(fields["endpoint_id"])
+
+        notification_jobs.append(
+            (message_id, endpoint_id)
+        )
+
+    return notification_jobs
