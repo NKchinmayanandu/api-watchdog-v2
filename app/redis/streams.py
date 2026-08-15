@@ -1,5 +1,5 @@
 from app.redis.redis_client import redis_client
-
+from app.redis.scripts import PUBLISH_OUTBOX_EVENT
 async def enqueue_monitor_jobs(endpoint_id:int):
     await redis_client.xadd(
         "monitor_jobs",
@@ -52,20 +52,28 @@ async def claim_stale_monitor_jobs(consumer_name:str,min_idle_time):
     return monitor_jobs
 
 
-async def enqueue_notification_job(
-    owner_id: int,
-    endpoint_id: int,
-    current_status: str,
-):
-    return await redis_client.xadd(
-        "notification_jobs",
-        {
-            "event_type": "endpoint_status_changed",
-            "owner_id": owner_id,
-            "endpoint_id": endpoint_id,
-            "current_status": current_status,
-        },
-    )
+from app.redis.redis_client import redis_client, publish_outbox_sha
+
+
+async def publish_outbox_events(events):
+
+    async with redis_client.pipeline(transaction=False) as pipe:
+
+        for event in events:
+
+            pipe.evalsha(
+                publish_outbox_sha,
+                2,
+                f"outbox:notification:published:{event.id}",
+                "notification_jobs",
+                str(event.id),
+                event.event_type,
+                str(event.owner_id),
+                str(event.endpoint_id),
+                event.current_status,
+            )
+
+        return await pipe.execute()
 
 async def read_notification_jobs(consumer_name: str):
     jobs = await redis_client.xreadgroup(

@@ -17,11 +17,19 @@ class OutboxEvent(Base):
     )
 
     event_type: Mapped[str] = mapped_column(String(50))
-
     current_status: Mapped[str] = mapped_column(String(20))
 
     created_at: Mapped[datetime] = mapped_column(
         server_default=func.now()
+    )
+
+    claimed_at: Mapped[datetime | None] = mapped_column(
+        nullable=True
+    )
+
+    claimed_by: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
     )
 
     processed_at: Mapped[datetime | None] = mapped_column(
