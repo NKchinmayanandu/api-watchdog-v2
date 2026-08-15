@@ -5,7 +5,7 @@ from app.redis import streams
 from app.db.session import AsyncSessionLocal
 from app.redis import redis_client
 import asyncio
-
+import logging
 async def outbox_worker(worker_name: str):
 
     await redis_client.load_scripts()
@@ -26,7 +26,8 @@ async def outbox_worker(worker_name: str):
         try:
             results = await streams.publish_outbox_events(events)
 
-        except Exception:
+        except Exception as e:
+            logging.exception(f"redis xadd and lua scripts failed : {e}")
             continue
 
         processed_ids = []

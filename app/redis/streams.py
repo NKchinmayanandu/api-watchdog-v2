@@ -90,10 +90,8 @@ async def read_notification_jobs(consumer_name: str):
     _, messages = jobs[0]
     notification_jobs = []
     for message_id, fields in messages:
-        endpoint_id = int(fields["endpoint_id"])
-
         notification_jobs.append(
-            (message_id, endpoint_id)
+            (message_id, fields)
         )
 
     return notification_jobs
