@@ -1,0 +1,29 @@
+version: "3.9"
+
+# docker-compose -f docker-compose.test.yml up -d
+# then:  pytest tests/integration/
+
+services:
+  postgres-test:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: api_watchdog_test
+    ports:
+      - "5433:5432"      # 5433 on host to avoid collision with dev DB
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis-test:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"      # 6380 on host to avoid collision with dev Redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
