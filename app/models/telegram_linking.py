@@ -13,7 +13,7 @@ class telegram_link_token(Base):
     user_id : Mapped[int] = mapped_column(ForeignKey("users.id",ondelete="CASCADE"),index=True,)
 
     token: Mapped[str] = mapped_column(
-        String(128),
+        String(64),
         unique=True,
         index=True,
         nullable=False,
