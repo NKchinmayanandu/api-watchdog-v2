@@ -17,6 +17,7 @@ async def process_job(job):
             return
 
         url = endpoint_cache["url"]
+        owner_id = int(endpoint_cache["owner_id"])
         previous_status = endpoint_cache.get("current_status")
 
         async with httpx.AsyncClient() as client:
@@ -34,14 +35,6 @@ async def process_job(job):
             and previous_status != current_status
         )
 
-        await cache.update_endpoint_cache(
-            endpoint_id=endpoint_id,
-            mapping={
-                "current_status": current_status,
-                "latency_ms": latency_ms,
-                "status_code": status_code,
-            },
-        )
 
         async with AsyncSessionLocal() as db:
             endpoint = await persist_monitor_result(
@@ -51,7 +44,16 @@ async def process_job(job):
                 status_code=status_code,
                 latency_ms=latency_ms,
                 status_changed=status_changed,
+                owner_id=owner_id
             )
+        await cache.update_endpoint_cache(
+            endpoint_id=endpoint_id,
+            mapping={
+                "current_status": current_status,
+                "latency_ms": latency_ms,
+                "status_code": status_code,
+            },
+        )
 
         if status_changed:
             await pubsub.publish_endpoint_event(

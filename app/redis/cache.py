@@ -16,7 +16,7 @@ async def delete_endpoint_cache(endpoint_id:int):
     await redis_client.delete(f"endpoint:{endpoint_id}")
 
 async def get_endpoint_cache(endpoint_id:id):
-    hset = await redis_client.hget(f"endpoint:{endpoint_id}")
+    hset = await redis_client.hgetall(f"endpoint:{endpoint_id}")
     if not hset:
         return None
     return hset

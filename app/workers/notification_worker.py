@@ -1,6 +1,7 @@
 import sys
 import asyncio
 from app.redis import streams
+import app.db.models
 async def notification_worker():
     while True:
         notification_jobs = await streams.read_notification_jobs(consumer_name=consumer_name)

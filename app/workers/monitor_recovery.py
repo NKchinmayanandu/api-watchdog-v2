@@ -2,6 +2,7 @@ from app.redis import streams
 import asyncio
 from app.services import monitor
 import sys
+import app.db.models
 async def recovery_worker():
     while True:
         jobs = await streams.claim_stale_monitor_jobs(

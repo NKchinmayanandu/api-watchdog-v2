@@ -6,11 +6,10 @@ async def scheduler_worker():
     while True:
         now = int(time.time())
 
-        due_endpoints = await redis_client.zrange(
-            "monitor-schedule",
+        due_endpoints = await redis_client.zrangebyscore(
+            "monitor_schedule",
             min="-inf",
             max=now,
-            byscore=True
         )
         for endpoint in due_endpoints:
             endpoint_id = int(endpoint.split(":")[1])

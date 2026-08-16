@@ -2,7 +2,7 @@ import asyncio
 import sys
 from app.redis import streams
 from app.services import monitor
-
+import app.db.models
 async def monitor_worker():
     while True:
         jobs = await streams.read_monitor_jobs(consumer_name=consumer_name)

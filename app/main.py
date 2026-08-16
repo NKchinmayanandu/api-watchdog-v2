@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 import json
-
+from app.db import models
 from fastapi import FastAPI, WebSocket
 from app.api.dependencies import decode_access_token
 from app.api.auth import router as auth_router
