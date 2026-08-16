@@ -7,6 +7,7 @@ from alembic import context
 from app.models.user import User
 from app.models.endpoint import Endpoint
 from app.models.endpoint_history import EndpointStatus,EndpointStatusHistory
+from app.models.telegram_linking import telegram_link_token
 from app.models.outbox import OutboxEvent
 from app.db.base import Base
 from app.core.config import settings

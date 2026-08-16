@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import String, func
+from sqlalchemy import BigInteger, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -18,4 +18,9 @@ class User(Base):
     endpoints : Mapped[list["Endpoint"]] = relationship(
         back_populates="owner",
         cascade="all, delete-orphan",
+    )
+    telegram_chat_id: Mapped[int | None] = mapped_column(
+    BigInteger,
+    nullable=True,
+    unique=True,
     )
