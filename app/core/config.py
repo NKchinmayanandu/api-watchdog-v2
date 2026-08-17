@@ -12,7 +12,9 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
     REDIS_URL: str = "redis://localhost:6379/0"
-
+    TELEGRAM_API_ID : int
+    TELEGRAM_API_HASH : str
+    TELEGRAM_SESSION_PATH : str
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
     @property
     def async_database_url(self) -> str:

@@ -10,3 +10,7 @@ venv/
 .env
 __pycache__/
 *.pyc
+telegram_sessions/
+telegram_sessions/
+*.session
+*.session-journal
