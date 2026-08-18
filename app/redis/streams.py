@@ -97,3 +97,10 @@ async def read_notification_jobs(consumer_name: str):
         )
 
     return notification_jobs
+
+async def ack_notification_job(message_id):
+    await redis_client.xack(
+        "notification_jobs",
+        "notification_group",
+        message_id,
+    )

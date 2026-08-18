@@ -7,6 +7,8 @@ local event_type = ARGV[2]
 local owner_id = ARGV[3]
 local endpoint_id = ARGV[4]
 local current_status = ARGV[5]
+local endpoint_url = ARGV[6]
+local latency_ms = ARGV[7]
 
 local created = redis.call(
     "SET",
@@ -24,11 +26,14 @@ local ok, stream_id = pcall(
     "XADD",
     stream_key,
     "*",
+
     "outbox_event_id", event_id,
     "event_type", event_type,
     "owner_id", owner_id,
     "endpoint_id", endpoint_id,
-    "current_status", current_status
+    "current_status", current_status,
+    "endpoint_url", endpoint_url,
+    "latency_ms", latency_ms
 )
 
 if not ok then
