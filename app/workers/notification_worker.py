@@ -13,7 +13,7 @@ async def notification_worker():
             asyncio.create_task(process_notification(job))
             for job in notification_jobs
         ]
-        resulta = await asyncio.gather(*tasks,
+        results = await asyncio.gather(*tasks,
                              return_exceptions=True)
         
         for job, result in zip(notification_jobs, results):
