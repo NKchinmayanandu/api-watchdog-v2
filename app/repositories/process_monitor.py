@@ -10,7 +10,8 @@ async def persist_monitor_result(
     status_code: int,
     latency_ms: float,
     status_changed: bool,
-    owner_id: int
+    owner_id: int,
+    url: str
 ):
     endpoint = await get_endpoint_by_id(
         db=db,
@@ -37,6 +38,8 @@ async def persist_monitor_result(
             endpoint_id=endpoint.id,
             event_type="endpoint_status_changed",
             current_status=current_status,
+           endpoint_url=url,
+           latency_ms=latency_ms
         )
         db.add(outbox_event)
 

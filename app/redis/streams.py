@@ -71,6 +71,8 @@ async def publish_outbox_events(events):
                 str(event.owner_id),
                 str(event.endpoint_id),
                 event.current_status,
+                event.endpoint_url,
+                str(event.latency_ms)
             )
 
         return await pipe.execute()

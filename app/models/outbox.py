@@ -35,3 +35,10 @@ class OutboxEvent(Base):
     processed_at: Mapped[datetime | None] = mapped_column(
         nullable=True
     )
+
+    endpoint_url: Mapped[str] = mapped_column(
+    String(2048),
+    nullable=False,
+    )
+
+    latency_ms : Mapped[int] = mapped_column(nullable=False)

@@ -44,7 +44,8 @@ async def process_job(job):
                 status_code=status_code,
                 latency_ms=latency_ms,
                 status_changed=status_changed,
-                owner_id=owner_id
+                owner_id=owner_id,
+                endpoint_url=url
             )
         await cache.update_endpoint_cache(
             endpoint_id=endpoint_id,
