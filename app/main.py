@@ -8,10 +8,14 @@ from app.api.endpoint import router as endpoint_router
 from app.core.config import settings
 from app.utils.logging import setup_logging
 from app.redis import pubsub
+from app.telegram.client import start_telegram_client,stop_telegram_client
+from app.telegram import listener
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     setup_logging()
+    await start_telegram_client()
     yield
+    await stop_telegram_client()
 
 
 app = FastAPI(
