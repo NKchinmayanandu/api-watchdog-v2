@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, String, func
+from sqlalchemy import BigInteger, ForeignKey, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -11,9 +11,19 @@ class OutboxEvent(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
+    owner_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"),
+        index=True,
+    )
+
     endpoint_id: Mapped[int] = mapped_column(
         ForeignKey("endpoints.id", ondelete="CASCADE"),
         index=True,
+    )
+    
+    telegram_random_id: Mapped[int] = mapped_column(
+        BigInteger,
+        nullable=False,
     )
 
     event_type: Mapped[str] = mapped_column(String(50))

@@ -1,3 +1,4 @@
+import random
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.repositories.endpoint import get_endpoint_by_id
 from app.models.endpoint_history import EndpointStatusHistory
@@ -35,11 +36,13 @@ async def persist_monitor_result(
         db.add(history)
 
         outbox_event = OutboxEvent(
+            owner_id=owner_id,
             endpoint_id=endpoint.id,
             event_type="endpoint_status_changed",
             current_status=current_status,
-           endpoint_url=url,
-           latency_ms=latency_ms
+            endpoint_url=url,
+            latency_ms=latency_ms,
+            telegram_random_id=random.getrandbits(63),
         )
         db.add(outbox_event)
 

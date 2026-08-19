@@ -18,10 +18,12 @@ async def process_notification(notification):
         telegram_user_id=telegram_account.telegram_user_id,
         telegram_access_hash=telegram_account.telegram_access_hash,
         message=message,
+        idempotency_key=int(fields["telegram_random_id"]),
     )   
 
     await ack_notification_job(message_id)
     return result
+
 
 def build_notification_message(fields):
     return (

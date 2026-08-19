@@ -1,19 +1,22 @@
-from telethon.tl.types import InputPeerUser
-
+from telethon import functions, types
 from app.telegram.client import telegram_client
-
 
 async def send_telegram_message(
     telegram_user_id: int,
     telegram_access_hash: int,
     message: str,
+    idempotency_key: int,
 ):
-    recipient = InputPeerUser(
+    recipient = types.InputPeerUser(
         user_id=telegram_user_id,
         access_hash=telegram_access_hash,
     )
 
-    return await telegram_client.send_message(
-        recipient,
-        message,
+    result = await telegram_client(
+        functions.messages.SendMessageRequest(
+            peer=recipient,
+            message=message,
+            random_id=idempotency_key,
+        )
     )
+    return result

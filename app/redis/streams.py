@@ -72,7 +72,8 @@ async def publish_outbox_events(events):
                 str(event.endpoint_id),
                 event.current_status,
                 event.endpoint_url,
-                str(event.latency_ms)
+                str(event.latency_ms),
+                str(event.telegram_random_id),
             )
 
         return await pipe.execute()
